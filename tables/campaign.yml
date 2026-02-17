@@ -1,0 +1,69 @@
+tables:
+  - name: campaign
+    sql: {{ load_sql('campaign') }}
+    description: >
+      Defines campaign criteria and logical groupings used to classify
+      units, contracts, and opportunities based on predefined rules.
+    public: true
+
+    dimensions:
+      - name: campaign_id
+        type: string
+        column: CAMPAIGN_ID
+        primary_key: true
+        public: true
+        description: "Unique identifier for the campaign."
+
+      - name: criteria_id
+        type: string
+        column: CRITERIA_ID
+        description: "Unique identifier for the campaign criteria."
+
+      - name: campaign_name
+        type: string
+        column: CAMPAIGN_NAME
+        description: "Name of the campaign."
+
+      - name: cadp_column
+        type: string
+        column: CADP_COLUMN
+        description: "Column on which the campaign rule is applied."
+
+      - name: operation
+        type: string
+        column: OPERATION
+        description: "Logical operation used in the campaign rule."
+
+      - name: criteria_value
+        type: string
+        column: CRITERIA_VALUE
+        description: "Value used for evaluating campaign rule conditions."
+
+      - name: logic_group
+        type: string
+        column: LOGIC_GROUP
+        description: "Logical grouping of campaign criteria."
+
+    measures:
+      - name: total_campaigns
+        sql: "COUNT(DISTINCT {campaign_id})"
+        type: number
+        description: "Total number of campaigns."
+
+      - name: total_criteria
+        sql: "COUNT(DISTINCT {criteria_id})"
+        type: number
+        description: "Total number of campaign criteria definitions."
+
+    segments:
+      - name: equality_operations
+        sql: "{operation} = '='"
+        description: "Campaign rules using equality condition."
+
+      - name: greater_than_operations
+        sql: "{operation} = '>'"
+        description: "Campaign rules using greater-than condition."
+
+      - name: less_than_operations
+        sql: "{operation} = '<'"
+        description: "Campaign rules using less-than condition."

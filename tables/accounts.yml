@@ -1,0 +1,90 @@
+tables:
+  - name: accounts
+    sql: {{ load_sql('accounts') }}
+    description: >
+      Defines customer account master data including identifiers,
+      contact details, ownership, and branch alignment used for
+      customer-level analysis across contracts and units.
+    public: true
+
+    joins:
+      - name: contract_unit_bridge
+        relationship: one_to_many
+        sql: "{TABLE.ACCOUNT_ID} = {contract_unit_bridge.CSODM_CUSTOMER_ID}"
+
+      - name: branch
+        relationship: many_to_one
+        sql: "{TABLE.BRANCH} = {branch.OFFICE_NAME}"
+
+    dimensions:
+      - name: account_id
+        type: string
+        column: ACCOUNT_ID
+        primary_key: true
+        public: true
+        description: "Unique identifier for the customer account."
+
+      - name: account_name
+        type: string
+        column: ACCOUNT_NAME
+        description: "Name of the customer account."
+
+      - name: account_number
+        type: string
+        column: ACCOUNT_NUMBER
+        description: "Account reference number."
+
+      - name: customer_id
+        type: string
+        column: CUSTOMER_ID
+        description: "Customer identifier reference."
+
+      - name: customer_number
+        type: string
+        column: CUSTOMER_NUMBER
+        description: "Customer number associated with the account."
+
+      - name: sscrm_customer_id
+        type: string
+        column: SSCRM_CUSTOMER_ID
+        description: "SSCRM system customer identifier."
+
+      - name: branch
+        type: string
+        column: BRANCH
+        description: "Branch office associated with the account."
+
+      - name: portfolio_owner
+        type: string
+        column: PORTFOLIO_OWNER
+        description: "Portfolio owner responsible for the account."
+
+      - name: primary_contact_name
+        type: string
+        column: PRIMARY_CONTACT_NAME
+        description: "Primary contact person for the account."
+
+      - name: primary_contact_email1
+        type: string
+        column: PRIMARY_CONTACT_EMAIL1
+        description: "Primary contact email address."
+
+      - name: primary_contact_phone1
+        type: string
+        column: PRIMARY_CONTACT_PHONE1
+        description: "Primary contact phone number."
+
+    measures:
+      - name: total_accounts
+        sql: "COUNT(DISTINCT {account_id})"
+        type: number
+        description: "Total number of unique accounts."
+
+    segments:
+      - name: accounts_with_contact_email
+        sql: "{primary_contact_email1} IS NOT NULL"
+        description: "Accounts that have a registered primary contact email."
+
+      - name: accounts_with_phone
+        sql: "{primary_contact_phone1} IS NOT NULL"
+        description: "Accounts that have a registered primary contact phone number."

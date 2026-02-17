@@ -1,0 +1,90 @@
+tables:
+  - name: contract_unit_bridge
+    sql: {{ load_sql('contract_unit_bridge') }}
+    description: >
+      Defines the bridge between contracts, units, and customers.
+      This table connects unit golden records to contract identifiers
+      and customer master data to enable cross-domain analysis.
+    public: true
+
+    joins:
+      - name: units
+        relationship: many_to_one
+        sql: "{TABLE.UNIT_EID} = {units.UNIT_GOLDEN_RECORD_ID}"
+
+      - name: accounts
+        relationship: many_to_one
+        sql: "{TABLE.CSODM_CUSTOMER_ID} = {accounts.ACCOUNT_ID}"
+
+    dimensions:
+      - name: contract_unit_summary_golden_record_id
+        type: string
+        column: CONTRACT_UNIT_SUMMARY_GOLDEN_RECORD_ID
+        primary_key: true
+        public: true
+        description: "Unique golden record identifier for each contract-unit mapping."
+
+      - name: unit_eid
+        type: string
+        column: UNIT_EID
+        description: "Unit golden record identifier linked to units table."
+
+      - name: building_eid
+        type: number
+        column: BUILDING_EID
+        description: "Building identifier associated with the unit."
+
+      - name: customer_eid
+        type: string
+        column: CUSTOMER_EID
+        description: "Customer identifier associated with the contract."
+
+      - name: billto_customer_eid
+        type: string
+        column: BILLTO_CUSTOMER_EID
+        description: "Bill-to customer identifier."
+
+      - name: contract_eid
+        type: string
+        column: CONTRACT_EID
+        description: "Contract identifier."
+
+      - name: contact_eid
+        type: string
+        column: CONTACT_EID
+        description: "Contact identifier linked to the contract."
+
+      - name: contract_unit_legacy_id
+        type: string
+        column: CONTRACT_UNIT_LEGACY_ID
+        description: "Legacy contract-unit identifier."
+
+      - name: sscrm_contract_auto_id
+        type: string
+        column: SSCRM_CONTRACT_AUTO_ID
+        description: "SSCRM contract auto-generated identifier."
+
+      - name: csodm_customer_id
+        type: string
+        column: CSODM_CUSTOMER_ID
+        description: "Customer identifier linked to accounts table."
+
+      - name: contract_status_nm
+        type: string
+        column: CONTRACT_STATUS_NM
+        description: "Status of the contract."
+
+    measures:
+      - name: total_contract_unit_records
+        sql: "COUNT(DISTINCT {contract_unit_summary_golden_record_id})"
+        type: number
+        description: "Total number of contract-unit bridge records."
+
+    segments:
+      - name: active_contracts
+        sql: "{contract_status_nm} = 'Active'"
+        description: "Contracts currently active."
+
+      - name: inactive_contracts
+        sql: "{contract_status_nm} IN ('Inactive', 'Expired', 'Cancelled')"
+        description: "Contracts not currently active."

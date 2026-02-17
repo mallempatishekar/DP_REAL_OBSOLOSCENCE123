@@ -1,0 +1,119 @@
+tables:
+  - name: opportunity_unit
+    sql: {{ load_sql('opportunity_unit') }}
+    description: >
+      Defines opportunity-level data linked to units including sales status,
+      proposal lifecycle, business stream classification, and campaign linkage.
+    public: true
+
+    joins:
+      - name: units
+        relationship: many_to_one
+        sql: "{TABLE.UNIT_ERP_NUMBER} = {units.UNIT_NUMBER}"
+
+    dimensions:
+      - name: opportunity_id
+        type: string
+        column: OPPORTUNITY_ID
+        primary_key: true
+        public: true
+        description: "Unique identifier for the opportunity."
+
+      - name: rnk
+        type: number
+        column: RNK
+        description: "Ranking or priority order of the opportunity."
+
+      - name: priority
+        type: string
+        column: PRIORITY
+        description: "Priority level assigned to the opportunity."
+
+      - name: opportunity_name
+        type: string
+        column: OPPORTUNITY_NAME
+        description: "Name of the sales opportunity."
+
+      - name: opportunity_status
+        type: string
+        column: OPPORTUNITY_STATUS
+        description: "Current status of the opportunity."
+
+      - name: gsscore_iscancellationalert
+        type: string
+        column: GSSCORE_ISCANCELLATIONALERT
+        description: "Indicates if the opportunity has a cancellation alert."
+
+      - name: gsscore_proposaldelivered
+        type: string
+        column: GSSCORE_PROPOSALDELIVERED
+        description: "Indicates whether the proposal has been delivered."
+
+      - name: actual_close_date
+        type: time
+        column: ACTUALCLOSEDATE
+        description: "Actual close date of the opportunity."
+
+      - name: quote_id
+        type: string
+        column: QUOTE_ID
+        description: "Quote identifier associated with the opportunity."
+
+      - name: gsscore_torderprimaryproduct
+        type: string
+        column: GSSCORE_TORDERPRIMARYPRODUCT
+        description: "Primary product associated with the opportunity."
+
+      - name: gsscore_businessstream
+        type: string
+        column: GSSCORE_BUSINESSSTREAM
+        description: "Business stream classification of the opportunity."
+
+      - name: gsscore_utm_campaign
+        type: string
+        column: GSSCORE_UTMCAMPAIGN
+        description: "Campaign reference associated with the opportunity."
+
+      - name: gsscore_unitid
+        type: string
+        column: GSSCORE_UNITID
+        description: "Unit identifier reference from GSSCORE."
+
+      - name: unit_erp_number
+        type: string
+        column: UNIT_ERP_NUMBER
+        description: "ERP unit number linked to the opportunity."
+
+      - name: contract_erp_number
+        type: string
+        column: CONTRACT_ERP_NUMBER
+        description: "ERP contract number linked to the opportunity."
+
+    measures:
+      - name: total_opportunities
+        sql: "COUNT(DISTINCT {opportunity_id})"
+        type: number
+        description: "Total number of unique opportunities."
+
+      - name: won_opportunities
+        sql: "COUNT(CASE WHEN {opportunity_status} = 'Won' THEN 1 END)"
+        type: number
+        description: "Total number of won opportunities."
+
+      - name: lost_opportunities
+        sql: "COUNT(CASE WHEN {opportunity_status} = 'Lost' THEN 1 END)"
+        type: number
+        description: "Total number of lost opportunities."
+
+    segments:
+      - name: open_opportunities
+        sql: "{opportunity_status} IN ('Open', 'In Progress')"
+        description: "Opportunities currently open."
+
+      - name: closed_opportunities
+        sql: "{opportunity_status} IN ('Closed', 'Won', 'Lost')"
+        description: "Opportunities that have been closed."
+
+      - name: cancellation_alerts
+        sql: "{gsscore_iscancellationalert} = 'Yes'"
+        description: "Opportunities flagged with cancellation alerts."

@@ -1,0 +1,144 @@
+tables:
+  - name: buildings
+    sql: {{ load_sql('buildings') }}
+    description: >
+      Defines building-level master data including location,
+      ownership, facility classification, and unit distribution.
+    public: true
+
+    joins:
+      - name: units
+        relationship: one_to_many
+        sql: "{TABLE.BUILDING_EID} = {units.BUILDING_EID}"
+
+    dimensions:
+      - name: building_eid
+        type: number
+        column: BUILDING_EID
+        primary_key: true
+        public: true
+        description: "Unique identifier for the building."
+
+      - name: building_number
+        type: string
+        column: BUILDING_NUMBER
+        description: "Building reference number."
+
+      - name: building_name
+        type: string
+        column: BUILDING_NAME
+        description: "Name of the building."
+
+      - name: building_facility_type
+        type: string
+        column: BUILDING_FACILITY_TYPE
+        description: "Type of facility such as hospital, residential, or commercial."
+
+      - name: building_ownership_type
+        type: string
+        column: BUILDING_OWNERSHIP_TYPE
+        description: "Ownership classification of the building."
+
+      - name: building_full_address
+        type: string
+        column: BUILDING_FULL_ADDRESS
+        description: "Full address of the building."
+
+      - name: city
+        type: string
+        column: CITY
+        description: "City where the building is located."
+
+      - name: state
+        type: string
+        column: STATE
+        description: "State where the building is located."
+
+      - name: zip_code
+        type: string
+        column: ZIP_CODE
+        description: "Postal code of the building location."
+
+      - name: country
+        type: string
+        column: COUNTRY
+        description: "Country where the building is located."
+
+      - name: building_latitude
+        type: number
+        column: BUILDING_LATITUDE
+        description: "Latitude coordinate of the building."
+
+      - name: building_longitude
+        type: number
+        column: BUILDING_LONGITUDE
+        description: "Longitude coordinate of the building."
+
+      - name: active_in
+        type: string
+        column: ACTIVE_IN
+        description: "Active region or classification indicator."
+
+      - name: active_units_count
+        type: number
+        column: ACTIVE_UNITS_COUNT
+        description: "Number of active units in the building."
+
+      - name: unit_count
+        type: number
+        column: UNIT_COUNT
+        description: "Total number of units installed in the building."
+
+      - name: is_single_elevator
+        type: string
+        column: IS_SINGLE_ELEVATOR
+        description: "Indicates whether the building has a single elevator."
+
+      - name: geo_type
+        type: string
+        column: GEO_TYPE
+        description: "Geographic type classification."
+
+      - name: geo_price
+        type: number
+        column: GEO_PRICE
+        description: "Geographic pricing classification."
+
+      - name: update_date
+        type: time
+        column: UPDATE_DATE
+        description: "Last update date of the building record."
+
+      - name: building_row_number
+        type: number
+        column: BUILDING_ROW_NUMBER
+        description: "Row number identifier for building record."
+
+    measures:
+      - name: total_buildings
+        sql: "COUNT(DISTINCT {building_eid})"
+        type: number
+        description: "Total number of unique buildings."
+
+      - name: total_units_in_buildings
+        sql: "SUM({unit_count})"
+        type: number
+        description: "Total units across all buildings."
+
+      - name: total_active_units_in_buildings
+        sql: "SUM({active_units_count})"
+        type: number
+        description: "Total active units across buildings."
+
+    segments:
+      - name: single_elevator_buildings
+        sql: "{is_single_elevator} = 'Yes'"
+        description: "Buildings with a single elevator."
+
+      - name: multi_unit_buildings
+        sql: "{unit_count} > 1"
+        description: "Buildings with multiple units."
+
+      - name: buildings_in_india
+        sql: "{country} = 'India'"
+        description: "Buildings located in India."

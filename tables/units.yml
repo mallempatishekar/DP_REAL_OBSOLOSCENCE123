@@ -1,0 +1,248 @@
+tables:
+  - name: units
+    sql: {{ load_sql('units') }}
+    description: >
+      Defines unit master data including identifiers, contract linkage,
+      lifecycle details, technical specifications, operational status,
+      and service activity metrics.
+    public: true
+
+    joins:
+      - name: buildings
+        relationship: many_to_one
+        sql: "{TABLE.BUILDING_EID} = {buildings.BUILDING_EID}"
+
+      - name: contract_ont_margin_agg
+        relationship: many_to_one
+        sql: "{TABLE.CONTRACT_EID} = {contract_ont_margin_agg.CONTRACT_ID}"
+
+      - name: opportunity_unit
+        relationship: many_to_one
+        sql: "{TABLE.UNIT_NUMBER} = {opportunity_unit.UNIT_ERP_NUMBER}"
+
+    dimensions:
+      - name: unit_id
+        type: number
+        column: UNIT_ID
+        primary_key: true
+        public: true
+        description: "Unique identifier for the unit."
+
+      - name: realistic_unit_data_indicator
+        type: string
+        column: REALISTIC_UNIT_DATA_INDICATOR
+        description: "Indicator showing whether the unit data is realistic."
+
+      - name: unit_golden_record_id
+        type: string
+        column: UNIT_GOLDEN_RECORD_ID
+        description: "Golden record identifier used for cross-domain joins."
+
+      - name: unit_number
+        type: string
+        column: UNIT_NUMBER
+        description: "ERP unit number."
+
+      - name: unit_legacy_id
+        type: string
+        column: UNIT_LEGACY_ID
+        description: "Legacy system unit identifier."
+
+      - name: contract_eid
+        type: string
+        column: CONTRACT_EID
+        description: "Contract identifier linked to financial data."
+
+      - name: gsscore_contract
+        type: number
+        column: GSSCORE_CONTRACT
+        description: "Contract score reference."
+
+      - name: model_id
+        type: string
+        column: MODEL_ID
+        description: "Model identifier."
+
+      - name: model_name
+        type: string
+        column: MODEL_NAME
+        description: "Model name of the unit."
+
+      - name: manufacturer_name
+        type: string
+        column: MANUFACTURER_NAME
+        description: "Manufacturer of the unit."
+
+      - name: is_otis_unit
+        type: string
+        column: IS_OTIS_UNIT
+        description: "Indicates if the unit is manufactured by Otis."
+
+      - name: product_family
+        type: string
+        column: PRODUCT_FAMILY
+        description: "Product family classification."
+
+      - name: product_type
+        type: string
+        column: PRODUCT_TYPE
+        description: "Product type classification."
+
+      - name: product_name
+        type: string
+        column: PRODUCT_NAME
+        description: "Product name."
+
+      - name: capacity
+        type: number
+        column: CAPACITY
+        description: "Capacity of the unit."
+
+      - name: capacity_units
+        type: string
+        column: CAPACITY_UNITS
+        description: "Unit of capacity measurement."
+
+      - name: installation_date
+        type: time
+        column: INSTALLATION_DATE
+        description: "Installation date of the unit."
+
+      - name: modernization_date
+        type: time
+        column: MODERNIZATION_DATE
+        description: "Last modernization date."
+
+      - name: nis_start_date
+        type: time
+        column: NIS_START_DATE
+        description: "Contract start date."
+
+      - name: nis_end_date
+        type: time
+        column: NIS_END_DATE
+        description: "Contract end date."
+
+      - name: controller_type
+        type: string
+        column: CONTROLLER_TYPE
+        description: "Type of controller installed."
+
+      - name: machine_name
+        type: string
+        column: MACHINE_NAME
+        description: "Machine name associated with the unit."
+
+      - name: rise
+        type: number
+        column: RISE
+        description: "Vertical rise of the unit."
+
+      - name: speed
+        type: number
+        column: SPEED
+        description: "Speed of the unit."
+
+      - name: speed_unit
+        type: string
+        column: SPEED_UNIT
+        description: "Unit of speed measurement."
+
+      - name: number_of_stops
+        type: number
+        column: NUMBER_OF_STOPS
+        description: "Total number of stops."
+
+      - name: elevator_usage_type
+        type: string
+        column: ELEVATOR_USAGE_TYPE
+        description: "Usage type of the elevator."
+
+      - name: unit_status
+        type: string
+        column: UNIT_STATUS
+        description: "Operational status of the unit."
+
+      - name: building_eid
+        type: number
+        column: BUILDING_EID
+        description: "Building identifier where the unit is installed."
+
+      - name: equipment_type
+        type: string
+        column: EQUIPMENT_TYPE
+        description: "Type of equipment."
+
+      - name: product_class
+        type: string
+        column: PRODUCT_CLASS
+        description: "Product class."
+
+      - name: status_code
+        type: string
+        column: STATUS_CODE
+        description: "Status code of the unit."
+
+      - name: modernization_flag
+        type: string
+        column: MODERNIZATION_FLAG
+        description: "Indicates whether the unit has been modernized."
+
+      - name: last_visit_date
+        type: time
+        column: LAST_VISIT_DATE
+        description: "Date of last maintenance visit."
+
+      - name: total_visits
+        type: number
+        column: TOTAL_VISITS
+        description: "Total number of service visits."
+
+      - name: days_since_last_visit
+        type: number
+        column: DAYS_SINCE_LAST_VISIT
+        description: "Days since last service visit."
+
+      - name: parts_replaced_number
+        type: number
+        column: PARTS_REPLACED_NUMBER
+        description: "Number of parts replaced."
+
+      - name: parts_replaced_cost
+        type: string
+        column: PARTS_REPLACED_COST
+        description: "Cost of replaced parts."
+
+      - name: total_quantity_shipped
+        type: number
+        column: TOTAL_QUANTITY_SHIPPED
+        description: "Total quantity of parts shipped."
+
+    measures:
+      - name: total_units
+        sql: "COUNT(DISTINCT {unit_id})"
+        type: number
+        description: "Total number of unique units."
+
+      - name: total_parts_cost
+        sql: "SUM({parts_replaced_cost})"
+        type: number
+        description: "Total cost of parts replaced."
+
+      - name: average_visits
+        sql: "AVG({total_visits})"
+        type: number
+        description: "Average number of service visits."
+
+    segments:
+      - name: active_units
+        sql: "{unit_status} = 'Active'"
+        description: "Units currently active."
+
+      - name: out_of_service_units
+        sql: "{unit_status} IN ('Out of Service', 'OUT OF SERVICE')"
+        description: "Units not currently operational."
+
+      - name: modernized_units
+        sql: "{modernization_flag} = 'Yes'"
+        description: "Units that have undergone modernization."

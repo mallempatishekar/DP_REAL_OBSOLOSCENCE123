@@ -1,0 +1,95 @@
+views:
+  - name: obsolescence_modernization
+    description: >
+      The Obsolescence Modernization view is a fact-level campaign dataset
+      designed to support modernization and enhancement targeting strategies.
+      It consolidates installed base lifecycle data, contract financial exposure,
+      service activity indicators, opportunity signals, and customer hierarchy
+      into a single, campaign-ready analytical layer.
+
+      This dataset enables identification of aging, high-revenue, and
+      service-intensive units that represent strong modernization potential.
+      It supports campaign segmentation, prioritization, revenue impact analysis,
+      and executive reporting for obsolescence-driven initiatives.
+    public: true
+
+    meta:
+      title: Obsolescence Modernization Campaign Dataset
+      tags:
+        - DPDomain.Service
+        - DPDomain.Sales
+        - DPUsecase.Campaigning
+        - DPUsecase.Modernization Targeting
+        - DPUsecase.Revenue Prioritization
+        - DPTier.Consumer Aligned
+      metric:
+        expression: "*/30 * * * *"
+        timezone: "UTC"
+        window: "day"
+
+    tables:
+      - join_path: units
+        prefix: true
+        includes:
+          - unit_id
+          - unit_golden_record_id
+          - unit_number
+          - installation_date
+          - modernization_flag
+          - unit_status
+          - product_type
+          - equipment_type
+          - contract_eid
+          - total_visits
+          - days_since_last_visit
+          - parts_replaced_number
+          - parts_replaced_cost
+          - total_quantity_shipped
+
+      - join_path: contract_ont_margin_agg
+        prefix: true
+        includes:
+          - contract_id
+          - maint_revenue_usd
+          - maint_margin_usd
+          - open_order_revenue_usd
+          - open_order_margin_usd
+          - region_desc
+          - subregion_desc
+          - gbo_desc
+          - year
+          - month
+
+      - join_path: opportunity_unit
+        prefix: true
+        includes:
+          - opportunity_id
+          - opportunity_name
+          - opportunity_status
+          - priority
+          - gsscore_businessstream
+          - unit_erp_number
+
+      - join_path: contract_unit_bridge
+        prefix: true
+        includes:
+          - csodm_customer_id
+          - contract_status_nm
+
+      - join_path: accounts
+        prefix: true
+        includes:
+          - account_id
+          - account_name
+          - customer_number
+          - branch
+          - portfolio_owner
+
+      - join_path: branch
+        prefix: true
+        includes:
+          - branch_id
+          - region
+          - subregion
+          - gbo
+          - office_name

@@ -1,0 +1,80 @@
+tables:
+  - name: branch
+    sql: {{ load_sql('branch') }}
+    description: >
+      Defines organizational branch structure including region,
+      subregion, global business office, and office hierarchy
+      used for geographic and operational analysis.
+    public: true
+
+    joins:
+      - name: accounts
+        relationship: one_to_many
+        sql: "{TABLE.OFFICE_NAME} = {accounts.BRANCH}"
+
+    dimensions:
+      - name: branch_id
+        type: string
+        column: BRANCH_ID
+        primary_key: true
+        public: true
+        description: "Unique identifier for the branch."
+
+      - name: gsscore_servicebranchnumber
+        type: string
+        column: GSSCORE_SERVICEBRANCHNUMBER
+        description: "Service branch number reference."
+
+      - name: region_code
+        type: string
+        column: REGION_CODE
+        description: "Region code."
+
+      - name: region
+        type: string
+        column: REGION
+        description: "Region name."
+
+      - name: subregion_code
+        type: string
+        column: SUBREGION_CODE
+        description: "Subregion code."
+
+      - name: subregion
+        type: string
+        column: SUBREGION
+        description: "Subregion name."
+
+      - name: gbo
+        type: string
+        column: GBO
+        description: "Global Business Office classification."
+
+      - name: office_code
+        type: string
+        column: OFFICE_CODE
+        description: "Office code."
+
+      - name: office_name
+        type: string
+        column: OFFICE_NAME
+        description: "Office name used for account linkage."
+
+    measures:
+      - name: total_branches
+        sql: "COUNT(DISTINCT {branch_id})"
+        type: number
+        description: "Total number of branches."
+
+    segments:
+      - name: region_emea
+        sql: "{region} = 'EMEA'"
+        description: "Branches in EMEA region."
+
+      - name: region_apac
+        sql: "{region} = 'APAC'"
+        description: "Branches in APAC region."
+
+      - name: region_americas
+        sql: "{region} = 'AMERICAS'"
+        description: "Branches in Americas region."

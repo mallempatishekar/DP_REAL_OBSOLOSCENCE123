@@ -1,0 +1,95 @@
+tables:
+  - name: contract_ont_margin_agg
+    sql: {{ load_sql('ont_margin') }}
+    description: >
+      Defines contract-level financial performance including maintenance revenue,
+      margin, and open order financial metrics aggregated by period and region.
+    public: true
+
+    joins:
+      - name: units
+        relationship: one_to_many
+        sql: "{TABLE.CONTRACT_ID} = {units.CONTRACT_EID}"
+
+    dimensions:
+      - name: contract_id
+        type: string
+        column: CONTRACT_ID
+        primary_key: true
+        public: true
+        description: "Unique identifier for the contract."
+
+      - name: region_desc
+        type: string
+        column: REGION_DESC
+        description: "Region description."
+
+      - name: subregion_desc
+        type: string
+        column: SUBREGION_DESC
+        description: "Subregion description."
+
+      - name: gbo_desc
+        type: string
+        column: GBO_DESC
+        description: "Global Business Office description."
+
+      - name: pbu_desc
+        type: string
+        column: PBU_DESC
+        description: "Profit Business Unit description."
+
+      - name: customer_number
+        type: string
+        column: CUSTOMER_NUMBER
+        description: "Customer number associated with the contract."
+
+      - name: year
+        type: number
+        column: YEAR
+        description: "Financial year."
+
+      - name: month
+        type: number
+        column: MONTH
+        description: "Financial month."
+
+      - name: year_month
+        type: string
+        sql: "CONCAT({year}, '-', LPAD({month}, 2, '0'))"
+        description: "Derived year-month period for time-based financial analysis."
+
+    measures:
+      - name: total_maint_revenue_usd
+        sql: "SUM({MAINT_REVENUE_USD})"
+        type: number
+        description: "Total maintenance revenue in USD."
+
+      - name: total_maint_margin_usd
+        sql: "SUM({MAINT_MARGIN_USD})"
+        type: number
+        description: "Total maintenance margin in USD."
+
+      - name: total_open_order_revenue_usd
+        sql: "SUM({OPEN_ORDER_REVENUE_USD})"
+        type: number
+        description: "Total open order revenue in USD."
+
+      - name: total_open_order_margin_usd
+        sql: "SUM({OPEN_ORDER_MARGIN_USD})"
+        type: number
+        description: "Total open order margin in USD."
+
+      - name: maintenance_margin_percentage
+        sql: "CASE WHEN SUM({MAINT_REVENUE_USD}) = 0 THEN 0 ELSE SUM({MAINT_MARGIN_USD}) / SUM({MAINT_REVENUE_USD}) END"
+        type: number
+        description: "Maintenance margin percentage."
+
+    segments:
+      - name: high_margin_contracts
+        sql: "{MAINT_MARGIN_USD} > 100000"
+        description: "Contracts with high maintenance margin."
+
+      - name: low_margin_contracts
+        sql: "{MAINT_MARGIN_USD} < 0"
+        description: "Contracts generating negative maintenance margin."
